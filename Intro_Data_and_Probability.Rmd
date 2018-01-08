@@ -1,0 +1,358 @@
+---
+title: "Exploring the BRFSS data"
+author: "Pranjal Vijay"
+date: "December 12, 2017"
+output: "html_document"
+---
+
+### Setup
+
+#### Load packages
+
+```{r load-packages, message=TRUE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+### Load data
+
+```{r load-data, warning=FALSE}
+load("brfss2013.RData")
+```
+
+
+
+* * * *
+
+### Part 1: Data
+The Behavioral Risk Factor Surveillance System (BRFSS) is a collaborative project between all of the states in the
+United States (US) and participating US territories and the Centers for Disease Control and Prevention (CDC). BRFSS is an ongoing
+surveillance system designed to measure behavioral risk factors for the non-institutionalized adult population (18 years
+of age and older) residing in the US. In this document, the term "state" is used to refer to all areas participating in BRFSS,
+including the District of Columbia, Guam, and the Commonwealth of Puerto Rico.
+The BRFSS objective is to collect uniform, state-specific data on preventive health practices and risk behaviors that are
+linked to chronic diseases, injuries, and preventable infectious diseases that affect the adult population. Factors
+assessed by the BRFSS in 2013 include tobacco use, HIV/AIDS knowledge and prevention, exercise, immunization,
+health status, healthy days - health-related quality of life, health care access, inadequate sleep, hypertension
+awareness, cholesterol awareness, chronic health conditions, alcohol consumption, fruits and vegetables consumption,
+arthritis burden, and seatbelt use. Since 2011, BRFSS conducts both landline telephone- and cellular telephone-based
+surveys. In conducting the BRFSS landline telephone survey, interviewers collect data from a randomly selected adult
+in a household. In conducting the cellular telephone version of the BRFSS questionnaire, interviewers collect data from
+an adult who participates by using a cellular telephone and resides in a private residence or college housing.
+ The full BRFSS data set has been reduced to a selected group of variables, making 491775 observations of 336 variables.
+
+I want to take a quick look of below data frame & viewing its dimensions. 
+```{r str1}
+brfss2013 %>% 
+  select(medcost, genhlth) %>% 
+  str()
+```
+it can be seen that this data frame of 491775 obs. of  2 variables
+ 
+ 
+
+I want to take a quick look of below data frame & viewing its dimensions. 
+```{r str2}
+brfss2013 %>% 
+  select(sleptim1, qlhlth2) %>% 
+  str()
+```
+it can be seen that this data frame of 491775 obs. of  2 variables
+
+
+I want to take a quick look of below data frame & viewing its dimensions. 
+```{r str3}
+brfss2013 %>% 
+  select(painact2, exerany2) %>% 
+  str()
+```
+it can be seen that this data frame of 491775 obs. of  2 variables
+* * *
+
+## Part 2: Research questions
+
+**Research quesion 1:**
+
+As mentioned, BRFSS data set is designed to measure behavioral risk factors for adults population. 
+I want to find out whether the peroson who could not see the doctor due to cost have good health or not?.
+ I need to analyse whether Cost affects general health for a person or not, if yes then how much amount of person affected.
+Therefore I have included two variables, first is medcost and second is genhlth.
+* * *
+
+**Research quesion 2:** 
+
+I also want to find out whether the peroson who has good sleep also has healthy days  or i.e How Many Days Full Of Energy In Past 30 Days?
+I need to analyse whether good sleep impacts on healthy days or not with graphical visualization?
+Therefore I have included two variables, first is sleptim1 and second is qlhlth2.
+* * *
+
+**Research quesion 3:** 
+
+I want to find out whether the peroson who did not exercise in last 30 days also feels hard to do Usual activities in past 30 days or not?
+I need to analyse whether Not doing exercise makes hard to do usual activities or not with graphical visualization? 
+Therefore I have included two variables, first is exerany2 and second is painact2.
+* * *
+
+## Part 3: Exploratory data analysis
+
+first, I want to do some exploratory data analysis to find out solutions of above questions.
+
+**Research quesion 1:**
+
+
+####Solution start from below
+
+Here tabulating general_health data is being done 
+```{r general_health}
+brfss2013 %>% 
+  group_by(genhlth) %>% 
+  summarise(count = n())
+```
+
+Here tabulating general_health data without "NA" values is being done 
+```{r general_health-"NA"}
+brfss2013 %>% 
+  filter(genhlth != "NA") %>%
+  group_by(genhlth) %>% 
+  summarise(count = n())
+```
+
+Here tabulating medcost data is being done 
+```{r medcost}
+brfss2013 %>% 
+  group_by(medcost) %>% 
+  summarise(count = n())
+```
+
+Here tabulating medcost data without "NA" values is being done
+```{r medcost-"NA"}
+brfss2013 %>% 
+  filter(medcost != "NA") %>%
+  group_by(medcost) %>% 
+  summarise(count = n())
+```
+
+Here tabulating (general_health & medcost data without "NA" values) are being done 
+```{r general_health_&_medcost-"NA"}
+brfss2013 %>% 
+filter(genhlth != "NA", medcost != "NA") %>%
+  group_by(medcost, genhlth) %>% 
+  summarise(count=n())
+```
+
+Here tabulating (general_health  without "NA" values, medcost data without "NA" values & general_health is equal to poor) are being done 
+```{r general_health-"Poor"}
+brfss2013 %>% 
+filter(genhlth != "NA", medcost != "NA", genhlth == "Poor") %>%
+  group_by(medcost, genhlth) %>% 
+  summarise(count=n())
+```
+
+#Conclusion
+it can be concluded that no. of person who did not see the doctor due to cost having the poor health but this is not the only reason of poor general health, no. of people who see the doctor also having the poor health.
+
+**Research quesion 2:**
+
+####Solution start from below
+
+Here tabulating sleptim1 data is being done 
+```{r sleptim1}
+brfss2013 %>% 
+  group_by(sleptim1) %>% 
+  summarise(count = n())
+```
+
+Here tabulating sleptim1 data without "NA" values is being done 
+```{r sleptim1-"NA"}
+brfss2013 %>% 
+  filter(sleptim1 != "NA") %>%
+  group_by(sleptim1) %>% 
+  summarise(count = n())
+```
+
+Here tabulating qlhlth2 data is being done
+```{r qlhlth2-"full of energy"}
+brfss2013 %>% 
+  group_by(qlhlth2) %>% 
+  summarise(count = n())
+```
+
+Here tabulating qlhlth2 data without "NA" values is being done 
+```{r qlhlth2-"NA"}
+brfss2013 %>% 
+  filter(qlhlth2 != "NA") %>%
+  group_by(qlhlth2) %>% 
+  summarise(count = n())
+```
+
+Here tabulating (sleptim1 & qlhlth2 data without "NA" values) are being done 
+```{r sleptim1_&_qlhlth2-"NA"}
+brfss2013 %>% 
+filter(sleptim1 != "NA", qlhlth2 != "NA") %>%
+  group_by(sleptim1, qlhlth2) %>% 
+  summarise(count=n())
+```
+
+I have included the visualization of sleeptime & healthyDays below. 
+```{r plot-sleeptime-vs-healthyDays-line-and-point}
+ggplot(data = brfss2013, aes(x = sleptim1, y = qlhlth2)) +
+  geom_line() +
+  geom_point()
+```
+
+Here numeric operations applied on healthyDays 
+```{r qlhlth2-"numeric_summary"}
+brfss2013 %>% 
+  summarise(qualtmean = mean(qlhlth2), qualtmedian = median(qlhlth2), qualtsd = sd(qlhlth2), 
+            qualtmin = min(qlhlth2), qualtmax = max(qlhlth2))
+```
+
+Here numeric operations applied on healthyDays  without "na" values 
+```{r healthyDayss-"nonna_numeric_summaries"}
+brfss2013 %>% 
+  filter(!(is.na(qlhlth2))) %>%
+  summarise(qualtmean = mean(qlhlth2), qualtmedian = median(qlhlth2), qualtsd = sd(qlhlth2), 
+            qualtmin = min(qlhlth2), qualtmax = max(qlhlth2))
+```
+
+Below Computation:- if qlhlth2 is equal to or greater than "15" then "healthyDays" will be received  otherwise Non healthy Dayswill be received 
+```{r healthyDays}
+brfss2013 <- brfss2013 %>% 
+    filter(!(is.na(qlhlth2))) %>%
+  mutate(healthyDays = ifelse(qlhlth2 >= 15, "healthyDays", "Not healthy Days"))
+brfss2013 %>% 
+  group_by(healthyDays) %>% 
+  summarise(count = n())
+```
+
+Here numeric operations applied on sleptim1 variable without "na" values 
+```{r sleptim1-"nonna_numeric_summaries"}
+brfss2013 %>% 
+  filter(!(is.na(sleptim1))) %>%
+  summarise(sleptmean = mean(sleptim1), sleptmedian = median(sleptim1), sleptsd = sd(sleptim1), 
+            sleptmin = min(sleptim1), sleptmax = max(sleptim1))
+```
+
+if sleptim1 is equal to or greater than "15" without NA values then EnoughSlept will be received otherwise Not EnoughSleptime  will be received
+```{r EnoughSlept}
+brfss2013 <- brfss2013 %>% 
+    filter(!(is.na(sleptim1))) %>%
+  mutate(EnoughSlept = ifelse(sleptim1 >= 6, "EnoughSleptime", "Not EnoughSleptime"))
+brfss2013 %>% 
+  group_by(EnoughSlept) %>% 
+  summarise(count = n())
+```
+
+
+if sleptim1 & qlhlth2 variables without "NA", healthyDays is not equals to "Not healthy Days" then summary will be received grouped by healthyDays & EnoughSlept
+```{r}
+brfss2013 %>% 
+  filter(!(is.na(sleptim1)), !(is.na(qlhlth2)), healthyDays != "Not healthy Days") %>%
+  group_by(healthyDays,EnoughSlept) %>% 
+  summarise(count = n())
+```
+
+###Conclusion
+it can be concluded that if person sleeps equal to or more than 6 hours then he will have healthy days or be full of energy. on the other hand a few amount of people also have healthyDays who have less than 6 hours sleep.
+
+***Research quesion 3:**
+
+####Solution start from below
+
+Here tabulating exerany2 data is being done 
+```{r exerany2}
+brfss2013 %>% 
+  group_by(exerany2) %>% 
+  summarise(count = n())
+```
+
+Here tabulating exerany2 data without "NA" values is being done 
+```{r exerany2_"NA"}
+brfss2013 %>% 
+  filter(exerany2 != "NA") %>%
+  group_by(exerany2) %>% 
+  summarise(count = n())
+```
+
+Here tabulating painact2 data  is being done 
+```{r painact2-"full of energy"}
+brfss2013 %>% 
+  group_by(painact2) %>% 
+  summarise(count = n())
+```
+
+Here tabulating painact2 data without "NA" values is being done
+```{r painact2-"NA"}
+brfss2013 %>% 
+  filter(painact2 != "NA") %>%
+  group_by(painact2) %>% 
+  summarise(count = n())
+```
+
+Here tabulating exerany2 & painact2 data without "NA" values are being done 
+```{r exerany2_&_painact2-"NA"}
+brfss2013 %>% 
+filter(exerany2 != "NA", painact2 != "NA") %>%
+  group_by(exerany2, painact2) %>% 
+  summarise(count=n())
+```
+I have included the visualization of exerany2 & painact2 variable below. X axis contains exerany2 & Y axis contains painact2 variable
+```{r plot-exerany2-vs-painact2-line-and-point}
+ggplot(data = brfss2013, aes(x = exerany2, y = painact2)) +
+  geom_line() +
+  geom_point()
+```
+
+
+Here numeric operations applied on painact2 variable .
+```{r painact2-" numeric_summary"}
+brfss2013 %>% 
+  summarise(painmean = mean(painact2), painmedian = median(painact2), painsd = sd(painact2), 
+            painmin = min(painact2), painmax = max(painact2))
+```
+
+Here numeric operations applied on painact2 variable without "NA" values .
+```{r painact2-"nonNA_numeric_summaries"}
+brfss2013 %>% 
+  filter(!(is.na(painact2))) %>%
+  summarise(painmean = mean(painact2), painmedian = median(painact2), painsd = sd(painact2), 
+            painmin = min(painact2), painmax = max(painact2))
+```
+
+if painact2 is equal to or greater than "5" then HardActivities will be receivied otherwise Non HardActivities wil be received.
+```{r HardActivities}
+brfss2013 <- brfss2013 %>% 
+    filter(!(is.na(painact2))) %>%
+  mutate(HardActivities = ifelse(painact2 >= 5, "HardActivities", "Not HardActivities"))
+brfss2013 %>% 
+  group_by(HardActivities) %>% 
+  summarise(count = n())
+```
+
+if exerany2 is equal to "No" then Notexercized will be received otherwise Not exercized  will be received on below tabulation
+```{r Notexercized, warning=TRUE}
+brfss2013 <- brfss2013 %>% 
+    filter(!(is.na(exerany2))) %>%
+  mutate(Notexercized = ifelse(exerany2 == "No", "Notexercized", "exercized"))
+brfss2013 %>% 
+  group_by(Notexercized) %>% 
+  summarise(count = n())
+```
+
+if exerany2 & painact2 variables without "NA" values, Notexercized is not equal to "exercized"  then tabulate both of them.
+```{r}
+brfss2013 %>% 
+  filter(!(is.na(exerany2)), !(is.na(painact2)), Notexercized != "exercized") %>%
+  group_by(Notexercized, HardActivities) %>% 
+  summarise(count = n())
+```
+
+
+
+###conclusion
+
+It can be seen that count of the no. of Notexercized person having not Hardactivities is greated than no. of Notexercized person having Hardactivities,
+Therefore it can be concluded that some persons who Notexercized have HardActivities but more amount of persons who Notexercized do not have  HardActivities.
+
+
+#End of solution
